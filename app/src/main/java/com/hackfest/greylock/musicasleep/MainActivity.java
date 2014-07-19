@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 
 import com.spotify.sdk.android.Spotify;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -23,6 +24,8 @@ public class MainActivity extends Activity implements
     private static final String CLIENT_ID = "3acf3492794d499a87be2120198d616c";
     // TODO: Replace with your redirect URI
     private static final String REDIRECT_URI = "music-asleep-login://callback";
+
+    private Button nextSongButton;
 
     private Player mPlayer;
     @Override
@@ -51,6 +54,13 @@ public class MainActivity extends Activity implements
                 @Override
                 public void onError(Throwable throwable) {
                     Log.e("MainActivity", "Could not initialize player: " + throwable.getMessage());
+                }
+            });
+            nextSongButton = (Button) findViewById(R.id.next_song_button);
+            nextSongButton.setEnabled(true);
+            nextSongButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    mPlayer.play("spotify:track:3zBhJBEbDD4a4SO1EaEiBP");
                 }
             });
         }
