@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:text="Next Song"
         android:id="@+id/next_song_button"
-        android:layout_centerVertical="true"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
 
     <TextView
@@ -37,7 +37,16 @@
         android:text="New Text"
         android:id="@+id/artist_name"
         android:layout_above="@+id/next_song_button"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        />
+
+    <ImageView
+        android:id="@+id/album_artwork"
+        android:layout_above="@+id/song_name"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="123dp"
+        android:layout_width="200dip"
+        android:layout_height="200dip"/>
 
 
 </RelativeLayout>

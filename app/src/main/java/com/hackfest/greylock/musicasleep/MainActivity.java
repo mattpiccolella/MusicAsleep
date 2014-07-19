@@ -4,12 +4,15 @@ package com.hackfest.greylock.musicasleep;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.spotify.sdk.android.Spotify;
@@ -44,6 +47,7 @@ public class MainActivity extends Activity implements
     private static final String SPOTIFY_TRACK_QUERY = "https://api.spotify.com/v1/tracks/";
 
     private Button nextSongButton;
+    private ImageView albumArtwork;
     private TextView songName;
     private TextView artistName;
 
@@ -79,6 +83,7 @@ public class MainActivity extends Activity implements
             nextSongButton = (Button) findViewById(R.id.next_song_button);
             songName = (TextView) findViewById(R.id.song_name);
             artistName = (TextView) findViewById(R.id.artist_name);
+            albumArtwork = (ImageView) findViewById(R.id.album_artwork);
             nextSongButton.setEnabled(true);
             nextSongButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -124,9 +129,9 @@ public class MainActivity extends Activity implements
     }
 
     public void playSongAndSetData(String trackId) {
-        mPlayer.play(getTrackUri(trackId));
         String trackRequest = SPOTIFY_TRACK_QUERY + trackId;
         new RESTfulAPIService().execute(trackRequest);
+        mPlayer.play(getTrackUri(trackId));
     }
 
     public String getTrackUri(String trackId) {
@@ -171,10 +176,31 @@ public class MainActivity extends Activity implements
                     songName.setText(responseJson.getString("name"));
                     JSONArray artists = responseJson.getJSONArray("artists");
                     artistName.setText(((JSONObject)artists.get(0)).getString("name"));
+                    JSONArray albumImages = responseJson.getJSONObject("album").getJSONArray("images");
+                    new AlbumArtworkDownloader().execute(((JSONObject)(albumImages.get(0))).getString("url"));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+    private class AlbumArtworkDownloader extends AsyncTask<String, Void, Bitmap> {
+        @Override
+        protected Bitmap doInBackground(String... urls) {
+            String imageUrl = urls[0];
+            Bitmap albumCover = null;
+            try {
+                InputStream in = new java.net.URL(imageUrl).openStream();
+                albumCover = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return albumCover;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            albumArtwork.setImageBitmap(result);
         }
     }
 }
