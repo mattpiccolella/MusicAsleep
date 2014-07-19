@@ -11,7 +11,8 @@
     <TextView
         android:text="@string/welcome"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:id="@+id/textView2" />
 
     <Button
         android:layout_width="wrap_content"
@@ -20,5 +21,23 @@
         android:id="@+id/next_song_button"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/song_name"
+        android:layout_above="@+id/artist_name"
+        android:layout_centerHorizontal="true" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/artist_name"
+        android:layout_above="@+id/next_song_button"
+        android:layout_centerHorizontal="true" />
+
 
 </RelativeLayout>
