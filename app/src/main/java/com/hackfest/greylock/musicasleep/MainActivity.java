@@ -36,7 +36,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends Activity implements
@@ -44,17 +43,6 @@ public class MainActivity extends Activity implements
 
     private static final String CLIENT_ID = "3acf3492794d499a87be2120198d616c";
     private static final String REDIRECT_URI = "music-asleep-login://callback";
-    private static final String DEFAULT_TRACK_ID = "3DK6m7It6Pw857FcQftMds";
-    private static final String OTHER_TRACK_ID = "6NmXV4o6bmp704aPGyTVVG";
-    private static final String TRACK_PREFIX = "spotify:track:";
-    private static final String[] SPOTIFY_TRACKS = {
-      "6t6oULCRS6hnI7rm0h5gwl",
-      "3DK6m7It6Pw857FcQftMds",
-      "6M6UoxIPn4NOWW0x7JPRfv",
-      "13PUJCvdTSCT1dn70tlGdm",
-      "0GO8y8jQk1PkHzS31d699N",
-      "2M1Qc1mGSI1IYtmJzQtfPq"
-    };
     private static final String TRACK_QUERY_URL = "https://api.spotify.com/v1/tracks/";
     private static int currentTrackIndex = 0;
 
@@ -149,7 +137,7 @@ public class MainActivity extends Activity implements
 
     public void populateSongQueue() {
         this.tracks.clear();
-        new RESTfulAPIService().execute(TRACK_QUERY_URL);
+        new RESTfulAPIService().execute("400");
     }
 
     public void playSongAndSetData() {
@@ -187,7 +175,7 @@ public class MainActivity extends Activity implements
             String urlParam = params[0];
             HttpClient httpClient = new DefaultHttpClient();
             HttpContext localContext = new BasicHttpContext();
-            HttpGet httpGet = new HttpGet(urlParam);
+            HttpGet httpGet = new HttpGet(TRACK_QUERY_URL + urlParam);
             String textResponse = null;
             try {
                 HttpResponse response = httpClient.execute(httpGet, localContext);
