@@ -65,6 +65,7 @@
     <orderEntry type="library" exported="" name="GraphView-3.1.2" level="project" />
     <orderEntry type="library" exported="" name="jnihelpers-1.0" level="project" />
     <orderEntry type="library" exported="" name="spotifysdk-player-1.0.0-beta1" level="project" />
+    <orderEntry type="module" module-name="opencv" exported="" />
   </component>
 </module>
 

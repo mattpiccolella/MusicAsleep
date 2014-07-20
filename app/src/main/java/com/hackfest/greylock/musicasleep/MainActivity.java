@@ -1,5 +1,6 @@
 // Music Asleep Application for Greylock Hackfest 2014
 // Matt Piccolella, Zach Lawrence, Josh Drubin, Char Kwon
+// test
 package com.hackfest.greylock.musicasleep;
 
 import android.app.Activity;
@@ -14,14 +15,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.GraphView.GraphViewData;
-import com.jjoe64.graphview.GraphViewSeries;
-import com.jjoe64.graphview.LineGraphView;
 import com.spotify.sdk.android.Spotify;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.sdk.android.authentication.SpotifyAuthentication;
