@@ -1,7 +1,11 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
@@ -10,40 +14,46 @@
     android:clickable="false"
     android:id="@+id/relativeLayout">
 
+
+    <ImageView
+        android:id="@+id/album_artwork"
+        android:layout_width="250dip"
+        android:layout_height="250dip"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="40dp"/>
+
+    <TextView
+        android:id="@+id/song_name"
+        android:layout_below="@+id/album_artwork"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="40dp"
+        android:layout_gravity="center_horizontal"
+        android:fontFamily="sans-serif-light"
+        />
+
+    <TextView
+        android:id="@+id/artist_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="20dp"
+        android:layout_gravity="center_horizontal"
+        android:fontFamily="sans-serif-light"
+        android:layout_marginBottom="70dp"/>
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_text"
         android:id="@+id/next_song_button"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:id="@+id/song_name"
-        android:layout_above="@+id/artist_name"
-        android:layout_centerHorizontal="true"
-        android:textSize="22sp"
-        />
+        style="@style/ButtonText"
+        android:background="@drawable/btn_white_matte"
+        android:layout_gravity="center_horizontal"
+        android:textStyle="normal|bold|italic"
+        android:fontFamily="sans-serif-light"
+        android:layout_marginTop="90dp" />
 
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:id="@+id/artist_name"
-        android:layout_above="@+id/next_song_button"
-        android:layout_centerHorizontal="true"
-        android:textSize="16sp"
-        />
-
-    <ImageView
-        android:id="@+id/album_artwork"
-        android:layout_width="150dip"
-        android:layout_height="150dip"
-        android:layout_centerHorizontal="true" />
-
-
-</RelativeLayout>
+</LinearLayout>
