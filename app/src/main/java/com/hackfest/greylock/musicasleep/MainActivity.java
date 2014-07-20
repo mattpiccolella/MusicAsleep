@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -49,6 +50,7 @@ public class MainActivity extends Activity implements
 
     private Player mPlayer;
     private SpotifyTrack currentTrack;
+    private int currentSongLength;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +73,17 @@ public class MainActivity extends Activity implements
                     mPlayer.addConnectionStateCallback(MainActivity.this);
                     mPlayer.addPlayerNotificationCallback(MainActivity.this);
                     playRandomSongAndSetData(400);
+                    final Handler nextSongHandler = new Handler();
+                    nextSongHandler.postDelayed(new Runnable() {
+                        public void run() {
+                            System.out.println(mPlayer.getPlayerState().positionInMs + " > " + currentSongLength);
+                            if (mPlayer.getPlayerState().positionInMs > currentSongLength) {
+                                currentSongLength = Integer.MAX_VALUE;
+                                playRandomSongAndSetData(500);
+                            }
+                            nextSongHandler.postDelayed(this, 1000);
+                        }
+                    }, 1000);
                 }
 
                 @Override
@@ -186,6 +199,7 @@ public class MainActivity extends Activity implements
                     new AlbumArtworkDownloader().execute(albumURL);
                     mPlayer.play(getTrackUri(trackId));
                     currentTrack = new SpotifyTrack(trackName, currentArtistName, albumURL, trackId);
+                    currentSongLength = Integer.parseInt(responseJson.getString("duration"));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
