@@ -12,8 +12,6 @@ import android.media.FaceDetector;
 import android.media.FaceDetector.Face;
 import android.os.Bundle;
 import android.view.View;
-import android.hardware.Camera;
-import android.hardware.Camera.Parameters;
 
 public class OpenCVActivity extends Activity {
 
@@ -39,8 +37,7 @@ public class OpenCVActivity extends Activity {
 
             BitmapFactory.Options BitmapFactoryOptionsbfo = new BitmapFactory.Options();
             BitmapFactoryOptionsbfo.inPreferredConfig = Bitmap.Config.RGB_565;
-            myBitmap = BitmapFactory.decodeResource(getResources(),
-                    R.raw.closed2, BitmapFactoryOptionsbfo);
+            myBitmap = BitmapFactory.decodeResource(getResources(), R.raw.closed3, BitmapFactoryOptionsbfo);
             imageWidth = myBitmap.getWidth();
             imageHeight = myBitmap.getHeight();
             myFace = new FaceDetector.Face[numberOfFace];
@@ -83,15 +80,32 @@ public class OpenCVActivity extends Activity {
             }
             float whitePercent = whiteCount / totalCount;
             System.out.println("z_whitePercent: " + whitePercent);
-//            JL = .10327869
-//            Face = .03178808
-//            Closed = 0
-//            Closed2 = .008506032
+            // JL = .10327869, .3760116
+            // Face = .03178808, .09288504
+            // Closed = 0, 0.053276177
+            // Closed2 = .008506032, .017690392
+            // open = .12511854, .09014936
+            // black_open = .038918283, .12792476
+            // closed3 = 0, .01702215
 
             canvas.drawRect((int) (myMidPoint.x + myEyesDistance - (myEyesDistance/1.25)),
                     (int) (myMidPoint.y - (myEyesDistance/3.25)),
                     (int) (myMidPoint.x + myEyesDistance),
                     (int) (myMidPoint.y + (myEyesDistance/3.25)), myPaint);
+
+            whiteCount = 0;
+            totalCount = 0;
+            for (int x = (int)(myMidPoint.x + myEyesDistance - (myEyesDistance/1.25)); x <= (myMidPoint.x + myEyesDistance); x++) {
+                for (int y = (int)(myMidPoint.y - (myEyesDistance/3.25)); y <= (myMidPoint.y + (myEyesDistance/3.25)); y++) {
+                    int full_color = myBitmap.getPixel(x, y);
+                    if (Color.red(full_color) < 50 && Color.green(full_color) < 50 && Color.blue(full_color) < 50) {
+                        whiteCount++;
+                    }
+                    totalCount++;
+                }
+            }
+            whitePercent = whiteCount / totalCount;
+            System.out.println("z_whitePercent2: " + whitePercent);
         }
     }
 
