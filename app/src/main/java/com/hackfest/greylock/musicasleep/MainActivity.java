@@ -19,6 +19,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.spotify.sdk.android.Spotify;
@@ -53,6 +54,7 @@ public class MainActivity extends Activity implements
     private ImageView albumArtwork;
     private TextView songName;
     private TextView artistName;
+    private SeekBar seekBar;
 
     private Player mPlayer;
     private SpotifyTrack currentTrack;
@@ -109,7 +111,9 @@ public class MainActivity extends Activity implements
                     playRandomSongAndSetData(getCurrentSleepScore());
                 }
             });
-            startPictureService();
+            seekBar = (SeekBar) findViewById(R.id.seekBar);
+            seekBar.setMax(100);
+            seekBar.setProgress(400);
         }
     }
 
@@ -149,7 +153,8 @@ public class MainActivity extends Activity implements
     }
 
     public void playRandomSongAndSetData(int score) {
-        String trackRequest = SPOTIFY_TRACK_QUERY + "" + score;
+        String trackRequest = SPOTIFY_TRACK_QUERY + "" + (score * 10);
+        System.out.println(trackRequest);
         new RESTfulAPIService().execute(trackRequest);
     }
 
@@ -158,9 +163,7 @@ public class MainActivity extends Activity implements
     }
 
     public int getCurrentSleepScore() {
-        int newSleepScore = ((int)(Math.random() * 10)) * 100;
-        System.out.println("Playing Song with Score: " + newSleepScore);
-        return newSleepScore;
+        return seekBar.getProgress();
     }
 
     private boolean eyesClosed(Bitmap myBitmap) {

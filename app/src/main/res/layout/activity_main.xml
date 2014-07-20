@@ -28,7 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=""
-        android:textSize="40dp"
+        android:textSize="30dp"
         android:layout_gravity="center_horizontal"
         android:fontFamily="sans-serif-light"
         />
@@ -42,6 +42,11 @@
         android:layout_gravity="center_horizontal"
         android:fontFamily="sans-serif-light"
         android:layout_marginBottom="70dp"/>
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar" />
 
     <Button
         android:layout_width="wrap_content"
