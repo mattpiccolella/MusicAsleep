@@ -3,9 +3,11 @@
 package com.hackfest.greylock.musicasleep;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -61,7 +63,10 @@ public class MainActivity extends Activity implements
     private TextView songName;
     private TextView artistName;
 
+    private AudioManager audioManager;
+
     private Player mPlayer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,8 +103,10 @@ public class MainActivity extends Activity implements
             nextSongButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     playRandomSongAndSetData();
+                    audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, 0);
                 }
             });
+            audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         }
     }
 
@@ -140,7 +147,6 @@ public class MainActivity extends Activity implements
 
     public void playRandomSongAndSetData() {
         int newTrackIndex;
-
         while ((newTrackIndex = ((int)(Math.random() * SPOTIFY_TRACKS.length))) != currentTrackIndex) {
             currentTrackId = SPOTIFY_TRACKS[newTrackIndex];
         }
