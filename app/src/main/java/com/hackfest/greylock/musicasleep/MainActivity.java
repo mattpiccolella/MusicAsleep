@@ -3,11 +3,9 @@
 package com.hackfest.greylock.musicasleep;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,7 +24,6 @@ import com.spotify.sdk.android.playback.PlayerNotificationCallback;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -36,6 +33,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends Activity implements
@@ -43,32 +41,38 @@ public class MainActivity extends Activity implements
 
     private static final String CLIENT_ID = "3acf3492794d499a87be2120198d616c";
     private static final String REDIRECT_URI = "music-asleep-login://callback";
-    private static final String TRACK_QUERY_URL = "https://api.spotify.com/v1/tracks/";
+    private static final String DEFAULT_TRACK_ID = "3DK6m7It6Pw857FcQftMds";
+    private static final String OTHER_TRACK_ID = "6NmXV4o6bmp704aPGyTVVG";
+    private static final String TRACK_PREFIX = "spotify:track:";
+    private static final String[] SPOTIFY_TRACKS = {
+            "4lFDt4sVpCni9DRHRmDjgG",
+            "3DK6m7It6Pw857FcQftMds",
+            "6M6UoxIPn4NOWW0x7JPRfv",
+            "13PUJCvdTSCT1dn70tlGdm",
+            "0GO8y8jQk1PkHzS31d699N",
+            "2M1Qc1mGSI1IYtmJzQtfPq"
+    };
+    private static final String SPOTIFY_TRACK_QUERY = "http://music-asleep.herokuapp.com/v1.0/select_song/100";
     private static int currentTrackIndex = 0;
+    private static String currentTrackId = SPOTIFY_TRACKS[currentTrackIndex];
 
     private Button nextSongButton;
     private ImageView albumArtwork;
     private TextView songName;
     private TextView artistName;
 
-    private AudioManager audioManager;
-
     private Player mPlayer;
-
-    private static ArrayList<SpotifyTrack> tracks = new ArrayList<SpotifyTrack>();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         SpotifyAuthentication.openAuthWindow(CLIENT_ID, "token", REDIRECT_URI,
-                  new String[]{"user-read-private", "streaming"}, null, this);
+                new String[]{"user-read-private", "streaming"}, null, this);
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        populateSongQueue();
         Uri uri = intent.getData();
         if (uri != null) {
             AuthenticationResponse response = SpotifyAuthentication.parseOauthResponse(uri);
@@ -78,7 +82,7 @@ public class MainActivity extends Activity implements
                 public void onInitialized() {
                     mPlayer.addConnectionStateCallback(MainActivity.this);
                     mPlayer.addPlayerNotificationCallback(MainActivity.this);
-                    playSongAndSetData();
+                    playRandomSongAndSetData();
                 }
 
                 @Override
@@ -93,10 +97,9 @@ public class MainActivity extends Activity implements
             nextSongButton.setEnabled(true);
             nextSongButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    playNextSong();
+                    playRandomSongAndSetData();
                 }
             });
-            audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         }
     }
 
@@ -135,25 +138,18 @@ public class MainActivity extends Activity implements
         super.onDestroy();
     }
 
-    public void populateSongQueue() {
-        this.tracks.clear();
-        new RESTfulAPIService().execute("400");
-    }
+    public void playRandomSongAndSetData() {
+        int newTrackIndex;
 
-    public void playSongAndSetData() {
-        SpotifyTrack currentTrack = tracks.get(currentTrackIndex);
-        songName.setText(currentTrack.getTrackName());
-        artistName.setText(currentTrack.getArtistName());
-        new AlbumArtworkDownloader().execute(currentTrack.getAlbumURL());
-        mPlayer.play(currentTrack.getTrackId());
-    }
-
-    public void playNextSong() {
-        currentTrackIndex++;
-        if (currentTrackIndex == this.tracks.size()) {
-            populateSongQueue();
+        while ((newTrackIndex = ((int)(Math.random() * SPOTIFY_TRACKS.length))) != currentTrackIndex) {
+            currentTrackId = SPOTIFY_TRACKS[newTrackIndex];
         }
-        playSongAndSetData();
+        String trackRequest = SPOTIFY_TRACK_QUERY;
+        new RESTfulAPIService().execute(trackRequest);
+    }
+
+    public String getTrackUri(String trackId) {
+        return TRACK_PREFIX + trackId;
     }
 
     private class RESTfulAPIService extends AsyncTask<String, Void, String> {
@@ -173,9 +169,10 @@ public class MainActivity extends Activity implements
         @Override
         protected String doInBackground(String... params) {
             String urlParam = params[0];
+            System.out.println("My URL: " + urlParam);
             HttpClient httpClient = new DefaultHttpClient();
             HttpContext localContext = new BasicHttpContext();
-            HttpGet httpGet = new HttpGet(TRACK_QUERY_URL + urlParam);
+            HttpGet httpGet = new HttpGet(urlParam);
             String textResponse = null;
             try {
                 HttpResponse response = httpClient.execute(httpGet, localContext);
@@ -190,19 +187,13 @@ public class MainActivity extends Activity implements
         protected void onPostExecute(String results) {
             if (results != null) {
                 try {
+                    System.out.println(results);
                     JSONObject responseJson = new JSONObject(results);
-                    if (responseJson.getString("status").equals("success")) {
-                        JSONArray trackResults = responseJson.getJSONArray("results");
-                        for (int i = 0; i < trackResults.length(); i++) {
-                            JSONObject trackResult = (JSONObject) trackResults.get(i);
-                            String artistName = trackResult.getString("artist_name");
-                            String trackName = trackResult.getString("track_name");
-                            String albumURL = trackResult.getString("album_url");
-                            String trackID = trackResult.getString("track_id");
-                            SpotifyTrack newTrack = new SpotifyTrack(trackName, artistName, albumURL, trackID);
-                            tracks.add(newTrack);
-                        }
-                    }
+                    songName.setText(responseJson.getString("track_name"));
+                    artistName.setText(responseJson.getString("artist_name"));
+                    new AlbumArtworkDownloader().execute(responseJson.getString("album_url"));
+                    currentTrackId = responseJson.getString("track_id");
+                    mPlayer.play(getTrackUri(currentTrackId));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
