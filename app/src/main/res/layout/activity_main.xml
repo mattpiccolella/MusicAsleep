@@ -49,7 +49,6 @@
         android:text="@string/button_text"
         android:id="@+id/next_song_button"
         style="@style/ButtonText"
-        android:background="@drawable/btn_white_matte"
         android:layout_gravity="center_horizontal"
         android:textStyle="normal|bold|italic"
         android:fontFamily="sans-serif-light"
