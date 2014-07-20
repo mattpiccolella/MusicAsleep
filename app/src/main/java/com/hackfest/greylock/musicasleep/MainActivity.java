@@ -75,12 +75,14 @@ public class MainActivity extends Activity implements
                     playRandomSongAndSetData(400);
                     final Handler nextSongHandler = new Handler();
                     nextSongHandler.postDelayed(new Runnable() {
+                        int previousNumber = 0;
                         public void run() {
-                            System.out.println(mPlayer.getPlayerState().positionInMs + " > " + currentSongLength);
-                            if (mPlayer.getPlayerState().positionInMs > currentSongLength) {
+                            int currentTime = mPlayer.getPlayerState().positionInMs;
+                            if (currentTime == previousNumber && (currentTime >= (currentSongLength * .8))) {
                                 currentSongLength = Integer.MAX_VALUE;
-                                playRandomSongAndSetData(500);
+                                playRandomSongAndSetData(getCurrentSleepScore());
                             }
+                            previousNumber = mPlayer.getPlayerState().positionInMs;
                             nextSongHandler.postDelayed(this, 1000);
                         }
                     }, 1000);
@@ -98,9 +100,7 @@ public class MainActivity extends Activity implements
             nextSongButton.setEnabled(true);
             nextSongButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    int randomScore = 100 * ((int) (Math.random() * 10));
-                    System.out.println("Song of score: " + randomScore);
-                    playRandomSongAndSetData(randomScore);
+                    playRandomSongAndSetData(getCurrentSleepScore());
                 }
             });
         }
@@ -150,6 +150,9 @@ public class MainActivity extends Activity implements
         return TRACK_PREFIX + trackId;
     }
 
+    public int getCurrentSleepScore() {
+        return (((int)(Math.random() * .9)) * 100);
+    }
     private class RESTfulAPIService extends AsyncTask<String, Void, String> {
         protected String getASCIIContentFromEntity(HttpEntity entity) throws IllegalStateException, IOException {
             InputStream in = entity.getContent();
