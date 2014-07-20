@@ -141,8 +141,12 @@ public class MainActivity extends Activity implements
 
     @Override
     public void pictureTaken(Bitmap bitmap, File file) {
-        seekBar.setProgress(seekBar.getProgress() + 10);
+        seekBar.setProgress(seekBar.getProgress() + 30);
         playRandomSongAndSetData(getCurrentSleepScore());
+        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
+                AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI);
+        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
+                AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI);
         audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
                 AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI);
         audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,

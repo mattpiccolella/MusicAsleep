@@ -18,7 +18,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Button"
+        android:text="Face Scan"
         android:id="@+id/face_button"
         style="@style/ButtonText1"
         android:layout_gravity="center_horizontal"
