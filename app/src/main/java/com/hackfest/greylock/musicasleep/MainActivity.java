@@ -7,8 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.hardware.Camera;
-import android.hardware.Camera.PictureCallback;
+import android.graphics.Color;
+import android.graphics.PointF;
+import android.media.FaceDetector;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -162,42 +163,53 @@ public class MainActivity extends Activity implements
         return newSleepScore;
     }
 
-    public void startPictureService() {
-        final Context context = this;
-        final Camera camera = Camera.open();
-        final Handler pictureTakingHandler = new Handler();
-        pictureTakingHandler.postDelayed(new Runnable() {
-            int previousNumber = 0;
-            public void run() {
-                if (camera != null) {
-                    try {
-                        SurfaceView dummy = new SurfaceView(context);
-                        camera.setPreviewDisplay(dummy.getHolder());
-                        camera.startPreview();
-                        System.out.println("TAKING MY PICTURE");
-                        camera.takePicture(null, null, getImageBitmapCallback());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    System.out.println("Fuck everything, this is all bullshit.");
+    private boolean eyesClosed(Bitmap myBitmap) {
+        FaceDetector.Face[] myFace = new FaceDetector.Face[1];
+        FaceDetector.Face face = myFace[0];
+        PointF myMidPoint = new PointF();
+        face.getMidPoint(myMidPoint);
+
+        float myEyesDistance = face.eyesDistance();
+
+        float whiteCountRight = 0;
+        float totalCountRight = 0;
+        for (int x = (int)(myMidPoint.x - myEyesDistance); x <= (myMidPoint.x - myEyesDistance + (myEyesDistance/1.25)); x++) {
+            for (int y = (int)(myMidPoint.y - (myEyesDistance/3.25)); y <= (myMidPoint.y + (myEyesDistance/3.25)); y++) {
+                int full_color = myBitmap.getPixel(x, y);
+                if (Color.red(full_color) < 50 && Color.green(full_color) < 50 && Color.blue(full_color) < 50) {
+                    whiteCountRight++;
                 }
-                pictureTakingHandler.postDelayed(this, 2000);
+                totalCountRight++;
             }
-        }, 2000);
+        }
+        float whitePercentRight = whiteCountRight / totalCountRight;
+        System.out.println("z_whitePercentRight: " + whitePercentRight);
+
+        float whiteCountLeft = 0;
+        float totalCountLeft = 0;
+        for (int x = (int)(myMidPoint.x + myEyesDistance - (myEyesDistance/1.25)); x <= (myMidPoint.x + myEyesDistance); x++) {
+            for (int y = (int)(myMidPoint.y - (myEyesDistance/3.25)); y <= (myMidPoint.y + (myEyesDistance/3.25)); y++) {
+                int full_color = myBitmap.getPixel(x, y);
+                if (Color.red(full_color) < 50 && Color.green(full_color) < 50 && Color.blue(full_color) < 50) {
+                    whiteCountLeft++;
+                }
+                totalCountLeft++;
+            }
+        }
+        float whitePercentLeft = whiteCountLeft / totalCountLeft;
+        System.out.println("z_whitePercentLeft: " + whitePercentLeft);
+
+        // JL = .10327869, .3760116
+        // Face = .03178808, .09288504
+        // Closed = 0, 0.053276177
+        // Closed2 = .008506032, .017690392
+        // open = .12511854, .09014936
+        // black_open = .038918283, .12792476
+        // closed3 = 0, .01702215
+
+        return (whitePercentLeft < 0.03 && whitePercentRight < 0.03);
     }
 
-
-    private PictureCallback getImageBitmapCallback() {
-        PictureCallback bitmap = new PictureCallback() {
-            @Override
-            public void onPictureTaken(byte[] data, Camera camera) {
-                Bitmap bitMap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                System.out.println("Here's our bitmap: " + bitMap);
-            }
-        };
-        return bitmap;
-    }
     private class RESTfulAPIService extends AsyncTask<String, Void, String> {
         protected String getASCIIContentFromEntity(HttpEntity entity) throws IllegalStateException, IOException {
             InputStream in = entity.getContent();
