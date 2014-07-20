@@ -4,6 +4,6 @@
     <string name="app_name">MusicAsleep</string>
     <string name="welcome">Welcome to Music Asleep!</string>
     <string name="action_settings">Settings</string>
-    <string name="button_text">Shuffle</string>
+    <string name="button_text">Next Song</string>
 
 </resources>
