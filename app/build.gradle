@@ -37,6 +37,8 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.spotify.sdk:spotifysdk:1.0.0-beta1@aar' // NOTE: Version must match!
+    compile 'com.spotify.sdk:spotifysdk:1.0.0-beta1@aar'
+    // NOTE: Version must match!
+    compile files('libs/GraphView-3.1.2.jar')
 }
 

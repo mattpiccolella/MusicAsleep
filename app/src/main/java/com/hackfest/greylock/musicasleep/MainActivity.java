@@ -14,8 +14,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GraphView.GraphViewData;
+import com.jjoe64.graphview.GraphViewSeries;
+import com.jjoe64.graphview.LineGraphView;
 import com.spotify.sdk.android.Spotify;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.sdk.android.authentication.SpotifyAuthentication;
@@ -151,7 +157,9 @@ public class MainActivity extends Activity implements
     }
 
     public int getCurrentSleepScore() {
-        return (((int)(Math.random() * .9)) * 100);
+        int newSleepScore = ((int)(Math.random() * 10)) * 100;
+        System.out.println("Playing Song with Score: " + newSleepScore);
+        return newSleepScore;
     }
     private class RESTfulAPIService extends AsyncTask<String, Void, String> {
         protected String getASCIIContentFromEntity(HttpEntity entity) throws IllegalStateException, IOException {
