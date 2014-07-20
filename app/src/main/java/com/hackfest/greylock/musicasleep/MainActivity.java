@@ -26,6 +26,7 @@ import com.spotify.sdk.android.playback.PlayerNotificationCallback;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -54,9 +55,8 @@ public class MainActivity extends Activity implements
       "0GO8y8jQk1PkHzS31d699N",
       "2M1Qc1mGSI1IYtmJzQtfPq"
     };
-    private static final String SPOTIFY_TRACK_QUERY = "https://api.spotify.com/v1/tracks/";
+    private static final String TRACK_QUERY_URL = "https://api.spotify.com/v1/tracks/";
     private static int currentTrackIndex = 0;
-    private static String currentTrackId = SPOTIFY_TRACKS[currentTrackIndex];
 
     private Button nextSongButton;
     private ImageView albumArtwork;
@@ -66,6 +66,8 @@ public class MainActivity extends Activity implements
     private AudioManager audioManager;
 
     private Player mPlayer;
+
+    private static ArrayList<SpotifyTrack> tracks = new ArrayList<SpotifyTrack>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +80,7 @@ public class MainActivity extends Activity implements
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        populateSongQueue();
         Uri uri = intent.getData();
         if (uri != null) {
             AuthenticationResponse response = SpotifyAuthentication.parseOauthResponse(uri);
@@ -87,7 +90,7 @@ public class MainActivity extends Activity implements
                 public void onInitialized() {
                     mPlayer.addConnectionStateCallback(MainActivity.this);
                     mPlayer.addPlayerNotificationCallback(MainActivity.this);
-                    playRandomSongAndSetData();
+                    playSongAndSetData();
                 }
 
                 @Override
@@ -102,8 +105,7 @@ public class MainActivity extends Activity implements
             nextSongButton.setEnabled(true);
             nextSongButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    playRandomSongAndSetData();
-                    audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, 0);
+                    playNextSong();
                 }
             });
             audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -145,18 +147,25 @@ public class MainActivity extends Activity implements
         super.onDestroy();
     }
 
-    public void playRandomSongAndSetData() {
-        int newTrackIndex;
-        while ((newTrackIndex = ((int)(Math.random() * SPOTIFY_TRACKS.length))) != currentTrackIndex) {
-            currentTrackId = SPOTIFY_TRACKS[newTrackIndex];
-        }
-        String trackRequest = SPOTIFY_TRACK_QUERY + currentTrackId;
-        new RESTfulAPIService().execute(trackRequest);
-        mPlayer.play(getTrackUri(currentTrackId));
+    public void populateSongQueue() {
+        this.tracks.clear();
+        new RESTfulAPIService().execute(TRACK_QUERY_URL);
     }
 
-    public String getTrackUri(String trackId) {
-        return TRACK_PREFIX + trackId;
+    public void playSongAndSetData() {
+        SpotifyTrack currentTrack = tracks.get(currentTrackIndex);
+        songName.setText(currentTrack.getTrackName());
+        artistName.setText(currentTrack.getArtistName());
+        new AlbumArtworkDownloader().execute(currentTrack.getAlbumURL());
+        mPlayer.play(currentTrack.getTrackId());
+    }
+
+    public void playNextSong() {
+        currentTrackIndex++;
+        if (currentTrackIndex == this.tracks.size()) {
+            populateSongQueue();
+        }
+        playSongAndSetData();
     }
 
     private class RESTfulAPIService extends AsyncTask<String, Void, String> {
@@ -194,11 +203,18 @@ public class MainActivity extends Activity implements
             if (results != null) {
                 try {
                     JSONObject responseJson = new JSONObject(results);
-                    songName.setText(responseJson.getString("name"));
-                    JSONArray artists = responseJson.getJSONArray("artists");
-                    artistName.setText(((JSONObject)artists.get(0)).getString("name"));
-                    JSONArray albumImages = responseJson.getJSONObject("album").getJSONArray("images");
-                    new AlbumArtworkDownloader().execute(((JSONObject)(albumImages.get(0))).getString("url"));
+                    if (responseJson.getString("status").equals("success")) {
+                        JSONArray trackResults = responseJson.getJSONArray("results");
+                        for (int i = 0; i < trackResults.length(); i++) {
+                            JSONObject trackResult = (JSONObject) trackResults.get(i);
+                            String artistName = trackResult.getString("artist_name");
+                            String trackName = trackResult.getString("track_name");
+                            String albumURL = trackResult.getString("album_url");
+                            String trackID = trackResult.getString("track_id");
+                            SpotifyTrack newTrack = new SpotifyTrack(trackName, artistName, albumURL, trackID);
+                            tracks.add(newTrack);
+                        }
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
