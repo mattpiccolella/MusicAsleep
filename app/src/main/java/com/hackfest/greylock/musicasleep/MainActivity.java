@@ -3,14 +3,18 @@
 package com.hackfest.greylock.musicasleep;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.hardware.Camera;
+import android.hardware.Camera.PictureCallback;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -23,6 +27,7 @@ import com.spotify.sdk.android.playback.ConnectionStateCallback;
 import com.spotify.sdk.android.playback.Player;
 import com.spotify.sdk.android.playback.PlayerNotificationCallback;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -103,6 +108,7 @@ public class MainActivity extends Activity implements
                     playRandomSongAndSetData(getCurrentSleepScore());
                 }
             });
+            takePictureNoPreview(this);
         }
     }
 
@@ -154,6 +160,37 @@ public class MainActivity extends Activity implements
         int newSleepScore = ((int)(Math.random() * 10)) * 100;
         System.out.println("Playing Song with Score: " + newSleepScore);
         return newSleepScore;
+    }
+
+    public void takePictureNoPreview(Context context) {
+        Camera camera = Camera.open();
+        if (camera != null) {
+            try {
+                SurfaceView dummy = new SurfaceView(context);
+                camera.setPreviewDisplay(dummy.getHolder());
+                camera.startPreview();
+                System.out.println("TAKING MY PICTURE");
+                camera.takePicture(null, null, getImageBitmapCallback());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                
+            }
+        } else {
+            System.out.println("Fuck everything, this is all bullshit.");
+        }
+    }
+
+
+    private PictureCallback getImageBitmapCallback() {
+        PictureCallback bitmap = new PictureCallback() {
+            @Override
+            public void onPictureTaken(byte[] data, Camera camera) {
+                Bitmap bitMap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            }
+        };
+        return bitmap;
     }
     private class RESTfulAPIService extends AsyncTask<String, Void, String> {
         protected String getASCIIContentFromEntity(HttpEntity entity) throws IllegalStateException, IOException {
