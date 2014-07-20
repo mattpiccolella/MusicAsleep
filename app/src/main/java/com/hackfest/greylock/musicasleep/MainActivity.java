@@ -8,7 +8,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.PointF;
+import android.media.AudioManager;
 import android.media.FaceDetector;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -28,7 +30,9 @@ import com.spotify.sdk.android.authentication.SpotifyAuthentication;
 import com.spotify.sdk.android.playback.ConnectionStateCallback;
 import com.spotify.sdk.android.playback.Player;
 import com.spotify.sdk.android.playback.PlayerNotificationCallback;
+import com.hackfest.greylock.musicasleep.OnPictureTaken;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +47,7 @@ import org.apache.http.protocol.HttpContext;
 import org.json.JSONObject;
 
 public class MainActivity extends Activity implements
-        PlayerNotificationCallback, ConnectionStateCallback {
+        PlayerNotificationCallback, ConnectionStateCallback, OnPictureTaken {
 
     private static final String CLIENT_ID = "3acf3492794d499a87be2120198d616c";
     private static final String REDIRECT_URI = "music-asleep-login://callback";
@@ -55,15 +59,21 @@ public class MainActivity extends Activity implements
     private TextView songName;
     private TextView artistName;
     private SeekBar seekBar;
+    private CustomCamera mCustomCamera;
+    private Button faceButton;
 
     private Player mPlayer;
     private SpotifyTrack currentTrack;
     private int currentSongLength;
+    private AudioManager audioManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mCustomCamera = new CustomCamera(MainActivity.this);
+        mCustomCamera.setPictureTakenListner(this);
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         SpotifyAuthentication.openAuthWindow(CLIENT_ID, "token", REDIRECT_URI,
                 new String[]{"user-read-private", "streaming"}, null, this);
     }
@@ -111,15 +121,32 @@ public class MainActivity extends Activity implements
                     playRandomSongAndSetData(getCurrentSleepScore());
                 }
             });
+            faceButton = (Button) findViewById(R.id.face_button);
+            faceButton.setEnabled(true);
+            faceButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    mCustomCamera.startCameraFront();
+                }
+            });
             seekBar = (SeekBar) findViewById(R.id.seekBar);
             seekBar.setMax(100);
-            seekBar.setProgress(400);
+            seekBar.setProgress(40);
         }
     }
 
     @Override
     public void onLoggedIn() {
         Log.d("MainActivity", "User logged in");
+    }
+
+    @Override
+    public void pictureTaken(Bitmap bitmap, File file) {
+        seekBar.setProgress(seekBar.getProgress() + 10);
+        playRandomSongAndSetData(getCurrentSleepScore());
+        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
+                AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI);
+        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
+                AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI);
     }
 
     @Override

@@ -15,6 +15,16 @@
     android:id="@+id/relativeLayout">
 
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Button"
+        android:id="@+id/face_button"
+        style="@style/ButtonText1"
+        android:layout_gravity="center_horizontal"
+        android:textStyle="normal|bold|italic"
+        android:fontFamily="sans-serif-light"/>
+
     <ImageView
         android:id="@+id/album_artwork"
         android:layout_width="235dp"
@@ -41,12 +51,12 @@
         android:textSize="20dp"
         android:layout_gravity="center_horizontal"
         android:fontFamily="sans-serif-light"
-        android:layout_marginBottom="70dp"/>
+/>
 
     <TextView
         android:layout_width="205dp"
         android:layout_height="wrap_content"
-        android:text="Heartbeat:"
+        android:text="Heartrate: 75 bpm"
         android:id="@+id/textView"
         android:layout_gravity="center_horizontal"
         android:textSize="20dp" />
