@@ -4,6 +4,7 @@ package com.hackfest.greylock.musicasleep;
 
 import android.app.Activity;
 import android.content.Context;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -73,6 +74,18 @@ public class MainActivity extends Activity implements
         setContentView(R.layout.activity_main);
         SpotifyAuthentication.openAuthWindow(CLIENT_ID, "token", REDIRECT_URI,
                   new String[]{"user-read-private", "streaming"}, null, this);
+
+
+        //  connect to bluetooth
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mBluetoothAdapter != null) {
+            //start fragment to connect to the heartbeat sensor via bluetooth
+
+        } //else the device does not support bluetooth
+
+
+
+
     }
 
     @Override
@@ -224,4 +237,5 @@ public class MainActivity extends Activity implements
             albumArtwork.setImageBitmap(result);
         }
     }
+
 }
