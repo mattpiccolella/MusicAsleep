@@ -108,7 +108,7 @@ public class MainActivity extends Activity implements
                     playRandomSongAndSetData(getCurrentSleepScore());
                 }
             });
-            takePictureNoPreview(this);
+            startPictureService();
         }
     }
 
@@ -162,24 +162,29 @@ public class MainActivity extends Activity implements
         return newSleepScore;
     }
 
-    public void takePictureNoPreview(Context context) {
-        Camera camera = Camera.open();
-        if (camera != null) {
-            try {
-                SurfaceView dummy = new SurfaceView(context);
-                camera.setPreviewDisplay(dummy.getHolder());
-                camera.startPreview();
-                System.out.println("TAKING MY PICTURE");
-                camera.takePicture(null, null, getImageBitmapCallback());
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                
+    public void startPictureService() {
+        final Context context = this;
+        final Camera camera = Camera.open();
+        final Handler pictureTakingHandler = new Handler();
+        pictureTakingHandler.postDelayed(new Runnable() {
+            int previousNumber = 0;
+            public void run() {
+                if (camera != null) {
+                    try {
+                        SurfaceView dummy = new SurfaceView(context);
+                        camera.setPreviewDisplay(dummy.getHolder());
+                        camera.startPreview();
+                        System.out.println("TAKING MY PICTURE");
+                        camera.takePicture(null, null, getImageBitmapCallback());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    System.out.println("Fuck everything, this is all bullshit.");
+                }
+                pictureTakingHandler.postDelayed(this, 2000);
             }
-        } else {
-            System.out.println("Fuck everything, this is all bullshit.");
-        }
+        }, 2000);
     }
 
 
@@ -188,6 +193,7 @@ public class MainActivity extends Activity implements
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
                 Bitmap bitMap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                System.out.println("Here's our bitmap: " + bitMap);
             }
         };
         return bitmap;
