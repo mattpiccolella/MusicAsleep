@@ -41,10 +41,20 @@ public class MainActivity extends Activity implements
 
     private static final String CLIENT_ID = "3acf3492794d499a87be2120198d616c";
     private static final String REDIRECT_URI = "music-asleep-login://callback";
-    private static final String DEFAULT_TRACK_ID = "2TpxZ7JUBn3uw46aR7qd6V";
+    private static final String DEFAULT_TRACK_ID = "3DK6m7It6Pw857FcQftMds";
     private static final String OTHER_TRACK_ID = "6NmXV4o6bmp704aPGyTVVG";
     private static final String TRACK_PREFIX = "spotify:track:";
+    private static final String[] SPOTIFY_TRACKS = {
+      "6t6oULCRS6hnI7rm0h5gwl",
+      "3DK6m7It6Pw857FcQftMds",
+      "6M6UoxIPn4NOWW0x7JPRfv",
+      "13PUJCvdTSCT1dn70tlGdm",
+      "0GO8y8jQk1PkHzS31d699N",
+      "2M1Qc1mGSI1IYtmJzQtfPq"
+    };
     private static final String SPOTIFY_TRACK_QUERY = "https://api.spotify.com/v1/tracks/";
+    private static int currentTrackIndex = 0;
+    private static String currentTrackId = SPOTIFY_TRACKS[currentTrackIndex];
 
     private Button nextSongButton;
     private ImageView albumArtwork;
@@ -72,7 +82,7 @@ public class MainActivity extends Activity implements
                 public void onInitialized() {
                     mPlayer.addConnectionStateCallback(MainActivity.this);
                     mPlayer.addPlayerNotificationCallback(MainActivity.this);
-                    playSongAndSetData(DEFAULT_TRACK_ID);
+                    playRandomSongAndSetData();
                 }
 
                 @Override
@@ -87,7 +97,7 @@ public class MainActivity extends Activity implements
             nextSongButton.setEnabled(true);
             nextSongButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    playSongAndSetData(OTHER_TRACK_ID);
+                    playRandomSongAndSetData();
                 }
             });
         }
@@ -128,10 +138,15 @@ public class MainActivity extends Activity implements
         super.onDestroy();
     }
 
-    public void playSongAndSetData(String trackId) {
-        String trackRequest = SPOTIFY_TRACK_QUERY + trackId;
+    public void playRandomSongAndSetData() {
+        int newTrackIndex;
+
+        while ((newTrackIndex = ((int)(Math.random() * SPOTIFY_TRACKS.length))) != currentTrackIndex) {
+            currentTrackId = SPOTIFY_TRACKS[newTrackIndex];
+        }
+        String trackRequest = SPOTIFY_TRACK_QUERY + currentTrackId;
         new RESTfulAPIService().execute(trackRequest);
-        mPlayer.play(getTrackUri(trackId));
+        mPlayer.play(getTrackUri(currentTrackId));
     }
 
     public String getTrackUri(String trackId) {
